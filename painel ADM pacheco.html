@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Painel ADM - Pacheco Panificadora</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #0f0f0f;
+            color: #f5f5f5;
+            padding: 2rem;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1,
+        h2 {
+            color: #D4A853;
+            margin-bottom: 1rem;
+        }
+        .admin-panel {
+            display: block;
+        }
+        .card {
+            background: #1a1a1a;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            border: 1px solid #333;
+        }
+        .form-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            flex: 1 0 100%;
+            font-weight: 600;
+        }
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            flex: 1;
+            padding: 0.7rem;
+            border-radius: 8px;
+            border: 1px solid #333;
+            background: #222;
+            color: #fff;
+            min-width: 200px;
+        }
+        .form-group textarea {
+            flex: 1 0 100%;
+            resize: vertical;
+        }
+        .form-group input[type="url"] {
+            flex: 1;
+        }
+        .btn {
+            padding: 0.7rem 1.5rem;
+            background: #D4A853;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            color: #0f0f0f;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn:hover {
+            background: #b8943a;
+        }
+        .btn-danger {
+            background: #e74c3c;
+            color: #fff;
+        }
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        .btn-secondary {
+            background: #555;
+            color: #fff;
+        }
+        .btn-secondary:hover {
+            background: #777;
+        }
+        .table-wrapper {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th,
+        td {
+            padding: 0.8rem;
+            text-align: left;
+            border-bottom: 1px solid #333;
+        }
+        th {
+            background: #2a2a2a;
+            color: #D4A853;
+        }
+        td img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+            background: #222;
+        }
+        .actions button {
+            margin: 0 0.3rem;
+            padding: 0.3rem 0.8rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .actions .edit {
+            background: #f39c12;
+            color: #fff;
+        }
+        .actions .delete {
+            background: #e74c3c;
+            color: #fff;
+        }
+        .mensagem-sucesso {
+            background: #2ecc71;
+            color: #0f0f0f;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        .preview-image {
+            max-width: 100px;
+            max-height: 100px;
+            border-radius: 8px;
+            margin-top: 0.5rem;
+        }
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+            .form-group {
+                flex-direction: column;
+            }
+            .form-group input,
+            .form-group select {
+                min-width: unset;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="adminPanel" class="admin-panel">
+            <h1 style="display:flex; justify-content:space-between; align-items:center;">
+                🛠️ Painel ADM
+            </h1>
+
+            <div id="msgSucesso" class="mensagem-sucesso">✅ Operação realizada com sucesso!</div>
+
+            <!-- ===== CONFIGURAÇÕES ===== -->
+            <div class="card">
+                <h2>⚙️ Configurações da Padaria</h2>
+                <div class="form-group">
+                    <label>Nome da Padaria</label>
+                    <input type="text" id="configNome" placeholder="Ex: Pacheco Panificadora" />
+                </div>
+                <div class="form-group">
+                    <label>Endereço</label>
+                    <input type="text" id="configEndereco" placeholder="Rua Exemplo, 123" />
+                </div>
+                <div class="form-group">
+                    <label>WhatsApp</label>
+                    <input type="text" id="configWhatsapp" placeholder="(99) 99999-9999" />
+                </div>
+                <div class="form-group">
+                    <label>Mensagem de Boas-Vindas</label>
+                    <textarea id="configMensagem" rows="2" placeholder="Uma frase de motivação..."></textarea>
+                </div>
+                <button class="btn" id="salvarConfigBtn">Salvar Configurações</button>
+            </div>
+
+            <!-- ===== PRODUTOS ===== -->
+            <div class="card">
+                <h2 id="formProdutoTitulo">➕ Adicionar Produto</h2>
+                <div class="form-group">
+                    <label>Nome do Produto</label>
+                    <input type="text" id="prodNome" placeholder="Ex: Misto Eg" />
+                </div>
+                <div class="form-group">
+                    <label>Descrição</label>
+                    <textarea id="prodDescricao" rows="2" placeholder="Ingredientes..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Preço (apenas números, ex: 29.90)</label>
+                    <input type="text" id="prodPreco" placeholder="29.90" />
+                </div>
+                <div class="form-group">
+                    <label>Categoria</label>
+                    <select id="prodCategoria">
+                        <option value="comidas">Comidas</option>
+                        <option value="bebidas">Bebidas</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="prodDestaque" /> Destaque (badge especial)
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label>URL da Imagem (opcional)</label>
+                    <input type="url" id="prodImagemURL" placeholder="https://exemplo.com/imagem.jpg" />
+                    <div id="previewContainer"></div>
+                </div>
+                <div style="display:flex; gap:1rem; flex-wrap:wrap;">
+                    <button class="btn" id="salvarProdBtn">Salvar Produto</button>
+                    <button class="btn btn-secondary" id="cancelarEdicaoBtn" style="display:none;">Cancelar Edição</button>
+                </div>
+                <input type="hidden" id="editProdId" value="" />
+            </div>
+
+            <!-- ===== LISTA DE PRODUTOS ===== -->
+            <div class="card">
+                <h2>📋 Produtos Cadastrados</h2>
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Imagem</th>
+                                <th>Nome</th>
+                                <th>Preço</th>
+                                <th>Categoria</th>
+                                <th>Destaque</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaProdutos"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js">
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js">
+    </script>
+
+    <script>
+        // ===== CONFIGURAÇÃO DO FIREBASE (mesma do site) =====
+        const firebaseConfig = {
+            apiKey: "AIzaSyBTS7jExQYt4FJJfW__y7airnXCPoqCKOI",
+            authDomain: "pacheco-591ed.firebaseapp.com",
+            projectId: "pacheco-591ed",
+            storageBucket: "pacheco-591ed.firebasestorage.app",
+            messagingSenderId: "468956071001",
+            appId: "1:468956071001:web:dd997e14b8c8070f211d48",
+            measurementId: "G-764DN5LGP2"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // ===== DOM REFS =====
+        const msgSucesso = document.getElementById('msgSucesso');
+
+        // Configurações
+        const configNome = document.getElementById('configNome');
+        const configEndereco = document.getElementById('configEndereco');
+        const configWhatsapp = document.getElementById('configWhatsapp');
+        const configMensagem = document.getElementById('configMensagem');
+        const salvarConfigBtn = document.getElementById('salvarConfigBtn');
+
+        // Produto
+        const prodNome = document.getElementById('prodNome');
+        const prodDescricao = document.getElementById('prodDescricao');
+        const prodPreco = document.getElementById('prodPreco');
+        const prodCategoria = document.getElementById('prodCategoria');
+        const prodDestaque = document.getElementById('prodDestaque');
+        const prodImagemURL = document.getElementById('prodImagemURL');
+        const previewContainer = document.getElementById('previewContainer');
+        const salvarProdBtn = document.getElementById('salvarProdBtn');
+        const cancelarEdicaoBtn = document.getElementById('cancelarEdicaoBtn');
+        const editProdId = document.getElementById('editProdId');
+        const formProdutoTitulo = document.getElementById('formProdutoTitulo');
+        const tabelaProdutos = document.getElementById('tabelaProdutos');
+
+        let produtosAtuais = [];
+
+        // ===== CONFIGURAÇÕES =====
+        async function carregarConfiguracoes() {
+            try {
+                const doc = await db.collection('config').doc('configuracoes').get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    configNome.value = data.nomePadaria || '';
+                    configEndereco.value = data.endereco || '';
+                    configWhatsapp.value = data.whatsapp || '';
+                    configMensagem.value = data.mensagemBoasVindas || '';
+                }
+            } catch (err) {
+                console.error('Erro ao carregar config:', err);
+            }
+        }
+
+        salvarConfigBtn.addEventListener('click', async () => {
+            try {
+                await db.collection('config').doc('configuracoes').set({
+                    nomePadaria: configNome.value,
+                    endereco: configEndereco.value,
+                    whatsapp: configWhatsapp.value,
+                    mensagemBoasVindas: configMensagem.value
+                }, { merge: true });
+                exibirSucesso('Configurações salvas!');
+            } catch (err) {
+                alert('Erro ao salvar configurações: ' + err.message);
+            }
+        });
+
+        // ===== PRODUTOS =====
+        function carregarProdutos() {
+            db.collection('produtos')
+                .orderBy('createdAt', 'desc')
+                .onSnapshot(snapshot => {
+                    produtosAtuais = [];
+                    snapshot.forEach(doc => {
+                        produtosAtuais.push({ id: doc.id, ...doc.data() });
+                    });
+                    renderizarTabela();
+                }, err => {
+                    console.error('Erro ao carregar produtos:', err);
+                });
+        }
+
+        function renderizarTabela() {
+            tabelaProdutos.innerHTML = '';
+            produtosAtuais.forEach(prod => {
+                const tr = document.createElement('tr');
+                // Imagem
+                const tdImg = document.createElement('td');
+                if (prod.imagemURL && prod.imagemURL.trim() !== '') {
+                    const img = document.createElement('img');
+                    img.src = prod.imagemURL;
+                    img.alt = prod.nome;
+                    img.onerror = () => { img.style.display = 'none';
+                        tdImg.textContent = 'URL inválida'; };
+                    tdImg.appendChild(img);
+                } else {
+                    tdImg.textContent = 'Sem foto';
+                }
+                tr.appendChild(tdImg);
+
+                const tdNome = document.createElement('td');
+                tdNome.textContent = prod.nome;
+                tr.appendChild(tdNome);
+
+                const tdPreco = document.createElement('td');
+                tdPreco.textContent = prod.preco ? `R$ ${prod.preco}` : 'Consultar';
+                tr.appendChild(tdPreco);
+
+                const tdCat = document.createElement('td');
+                tdCat.textContent = prod.categoria === 'comidas' ? 'Comidas' : 'Bebidas';
+                tr.appendChild(tdCat);
+
+                const tdDestaque = document.createElement('td');
+                tdDestaque.textContent = prod.destaque ? '⭐ Sim' : 'Não';
+                tr.appendChild(tdDestaque);
+
+                const tdAcoes = document.createElement('td');
+                tdAcoes.className = 'actions';
+                const btnEdit = document.createElement('button');
+                btnEdit.className = 'edit';
+                btnEdit.textContent = 'Editar';
+                btnEdit.onclick = () => editarProduto(prod.id);
+                const btnDelete = document.createElement('button');
+                btnDelete.className = 'delete';
+                btnDelete.textContent = 'Excluir';
+                btnDelete.onclick = () => excluirProduto(prod.id);
+                tdAcoes.appendChild(btnEdit);
+                tdAcoes.appendChild(btnDelete);
+                tr.appendChild(tdAcoes);
+
+                tabelaProdutos.appendChild(tr);
+            });
+        }
+
+        function limparFormularioProduto() {
+            prodNome.value = '';
+            prodDescricao.value = '';
+            prodPreco.value = '';
+            prodCategoria.value = 'comidas';
+            prodDestaque.checked = false;
+            prodImagemURL.value = '';
+            previewContainer.innerHTML = '';
+            editProdId.value = '';
+            formProdutoTitulo.textContent = '➕ Adicionar Produto';
+            salvarProdBtn.textContent = 'Salvar Produto';
+            cancelarEdicaoBtn.style.display = 'none';
+        }
+
+        function editarProduto(id) {
+            const prod = produtosAtuais.find(p => p.id === id);
+            if (!prod) return;
+            prodNome.value = prod.nome || '';
+            prodDescricao.value = prod.descricao || '';
+            prodPreco.value = prod.preco || '';
+            prodCategoria.value = prod.categoria || 'comidas';
+            prodDestaque.checked = !!prod.destaque;
+            prodImagemURL.value = prod.imagemURL || '';
+            editProdId.value = id;
+            formProdutoTitulo.textContent = '✏️ Editar Produto';
+            salvarProdBtn.textContent = 'Atualizar Produto';
+            cancelarEdicaoBtn.style.display = 'inline-block';
+
+            previewContainer.innerHTML = '';
+            if (prod.imagemURL) {
+                const img = document.createElement('img');
+                img.src = prod.imagemURL;
+                img.className = 'preview-image';
+                img.onerror = () => { img.style.display = 'none'; };
+                previewContainer.appendChild(img);
+            }
+        }
+
+        // Preview da URL
+        prodImagemURL.addEventListener('input', () => {
+            const url = prodImagemURL.value.trim();
+            previewContainer.innerHTML = '';
+            if (url) {
+                const img = document.createElement('img');
+                img.src = url;
+                img.className = 'preview-image';
+                img.onerror = () => { img.style.display = 'none';
+                    previewContainer.innerHTML = '<p style="color:red;">URL inválida</p>'; };
+                previewContainer.appendChild(img);
+            }
+        });
+
+        cancelarEdicaoBtn.addEventListener('click', limparFormularioProduto);
+
+        salvarProdBtn.addEventListener('click', async () => {
+            const nome = prodNome.value.trim();
+            const descricao = prodDescricao.value.trim();
+            const preco = prodPreco.value.trim();
+            const categoria = prodCategoria.value;
+            const destaque = prodDestaque.checked;
+            const imagemURL = prodImagemURL.value.trim();
+            const editId = editProdId.value;
+
+            if (!nome) {
+                alert('Informe o nome do produto.');
+                return;
+            }
+
+            try {
+                const dados = {
+                    nome,
+                    descricao,
+                    preco,
+                    categoria,
+                    destaque,
+                    imagemURL: imagemURL || null
+                };
+
+                if (editId) {
+                    await db.collection('produtos').doc(editId).update(dados);
+                    exibirSucesso('Produto atualizado!');
+                } else {
+                    dados.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                    await db.collection('produtos').add(dados);
+                    exibirSucesso('Produto adicionado!');
+                }
+
+                limparFormularioProduto();
+            } catch (err) {
+                alert('Erro ao salvar produto: ' + err.message);
+            }
+        });
+
+        async function excluirProduto(id) {
+            if (!confirm('Tem certeza que deseja excluir este produto?')) return;
+            try {
+                await db.collection('produtos').doc(id).delete();
+                exibirSucesso('Produto excluído!');
+            } catch (err) {
+                alert('Erro ao excluir: ' + err.message);
+            }
+        }
+
+        function exibirSucesso(msg) {
+            msgSucesso.textContent = '✅ ' + msg;
+            msgSucesso.style.display = 'block';
+            setTimeout(() => {
+                msgSucesso.style.display = 'none';
+            }, 4000);
+        }
+
+        // ===== INICIALIZAÇÃO =====
+        carregarConfiguracoes();
+        carregarProdutos();
+    </script>
+</body>
+</html>
